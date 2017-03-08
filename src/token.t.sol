@@ -73,7 +73,7 @@ contract DSTokenTest is DSTest {
     TokenUser user2;
 
     function setUp() {
-        token = new DSToken();
+        token = new DSToken("Test Token", "TST", 18);
         token.mint(initialBalance);
         user1 = new TokenUser(token);
         user2 = new TokenUser(token);

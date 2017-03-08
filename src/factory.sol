@@ -23,7 +23,7 @@ import './token.sol';
 contract TokenFactory {
     function createToken() returns (DSToken) {
         DSGuard guard = new DSGuard();
-        DSToken token = new DSToken();
+        DSToken token = new DSToken("Test Token", "TST", 18);
         token.setAuthority(guard);
         return token;
     }
