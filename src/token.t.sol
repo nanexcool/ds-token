@@ -18,7 +18,8 @@ pragma solidity ^0.4.8;
 
 import "ds-test/test.sol";
 
-import "./token.sol";
+import './factory.sol';
+import './token.sol';
 
 contract TokenUser {
     DSToken  token;
@@ -54,6 +55,14 @@ contract TokenUser {
     function doBalanceOf(address who) constant returns (uint) {
         return token.balanceOf(who);
     }
+
+    function doMint(uint amount) {
+        token.mint(amount);
+    }
+
+    function doBurn(uint amount) {
+        token.burn(amount);
+    }
 }
 
 contract DSTokenTest is DSTest {
@@ -64,14 +73,10 @@ contract DSTokenTest is DSTest {
     TokenUser user2;
 
     function setUp() {
-        token = createToken();
+        token = new DSToken();
         token.mint(initialBalance);
         user1 = new TokenUser(token);
         user2 = new TokenUser(token);
-    }
-
-    function createToken() internal returns (DSToken) {
-        return new DSToken();
     }
 
     function testSetupPrecondition() {
@@ -145,6 +150,26 @@ contract DSTokenTest is DSTest {
         token.burn(burnAmount);
         assertEq(token.totalSupply(), initialBalance - burnAmount);
     }
+
+    function testFailMintUnauthorized() logs_gas {
+        user1.doMint(10);
+    }
+
+    function testFailBurnUnauthorized() logs_gas {
+        user1.doBurn(10);
+    }
+
+    // function testGuard() logs_gas {
+    //     log_named_address("token", token);
+    //     log_named_address("this", this);
+    //     token.allow(user1, token, "mint(uint256)");
+    //     //token.allow(token.ANY(),token.ANY(),token.ANY(), true);
+    //     bool ok = token.canCall(user1, token, bytes4(sha3("mint(uint256)"))); //works 
+    //     uint256 amount = 10;
+    //     user1.doMint(10); // crash
+    //     assertEq(token.totalSupply(), initialBalance + amount);
+    //     assertEq(token.balanceOf(user1), amount);
+    // }
 
     function testFailTransferWhenStopped() logs_gas {
         token.stop();
